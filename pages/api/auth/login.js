@@ -1,71 +1,58 @@
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+// pages/api/auth/login.js
 import { connectToDatabase } from '../../../lib/db';
 import { verifyPassword } from '../../../lib/auth';
 
-export default NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: 'Hunter Credentials',
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        const { client, db } = await connectToDatabase();
-        
-        try {
-          const hunter = await db.collection('hunters').findOne({
-            email: credentials.email
-          });
-
-          if (!hunter) {
-            throw new Error('No hunter found with that email!');
-          }
-
-          const isValid = await verifyPassword(
-            credentials.password,
-            hunter.password
-          );
-
-          if (!isValid) {
-            throw new Error('Password is incorrect!');
-          }
-
-          return {
-            id: hunter._id.toString(),
-            email: hunter.email,
-            name: hunter.hunterName,
-            username: hunter.username
-          };
-        } catch (error) {
-          throw new Error(error.message);
-        } finally {
-          client.close();
-        }
-      }
-    })
-  ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.username = token.username;
-      return session;
-    }
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login'
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
-});
+
+  const { email, password } = req.body;
+  const { client, db } = await connectToDatabase();
+
+  try {
+    const hunter = await db.collection('hunters').findOne({ email });
+
+    if (!hunter) {
+      return res.status(404).json({ message: 'Hunter not found' });
+    }
+
+    // Special owner verification
+    if (email === process.env.OWNER_EMAIL) {
+      const isValid = await verifyPassword(password, hunter.password);
+      if (!isValid) {
+        return res.status(403).json({ message: 'Invalid owner credentials' });
+      }
+
+      return res.status(200).json({
+        isOwner: true,
+        isAdmin: true,
+        hunter: {
+          email: hunter.email,
+          hunterName: hunter.hunterName,
+          shadowArmy: hunter.shadowArmy || []
+        }
+      });
+    }
+
+    // Normal hunter login
+    const isValid = await verifyPassword(password, hunter.password);
+    if (!isValid) {
+      return res.status(403).json({ message: 'Invalid credentials' });
+    }
+
+    res.status(200).json({
+      isOwner: false,
+      hunter: {
+        email: hunter.email,
+        hunterName: hunter.hunterName,
+        rank: hunter.rank
+      }
+    });
+  } catch (error) {
+    console.error('[LOGIN ERROR]', error);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    client.close();
+  }
+}
