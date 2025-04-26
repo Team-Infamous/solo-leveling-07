@@ -1,46 +1,71 @@
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '../../../lib/db';
 import { verifyPassword } from '../../../lib/auth';
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+export default NextAuth({
+  providers: [
+    CredentialsProvider({
+      name: 'Hunter Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        const { client, db } = await connectToDatabase();
+        
+        try {
+          const hunter = await db.collection('hunters').findOne({
+            email: credentials.email
+          });
 
-  const { email, password } = req.body;
+          if (!hunter) {
+            throw new Error('No hunter found with that email!');
+          }
 
-  if (!email || !email.includes('@') || !password) {
-    return res.status(422).json({ message: 'Invalid input' });
-  }
+          const isValid = await verifyPassword(
+            credentials.password,
+            hunter.password
+          );
 
-  const { client, db } = await connectToDatabase();
+          if (!isValid) {
+            throw new Error('Password is incorrect!');
+          }
 
-  try {
-    const hunter = await db.collection('hunters').findOne({ email });
-
-    if (!hunter) {
-      return res.status(404).json({ message: 'Hunter not found' });
-    }
-
-    const isValid = await verifyPassword(password, hunter.password);
-
-    if (!isValid) {
-      return res.status(422).json({ message: 'Invalid credentials' });
-    }
-
-    // Create session (you'll need to implement NextAuth)
-    // For now just return success
-    res.status(200).json({ 
-      message: 'Login successful',
-      hunter: {
-        email: hunter.email,
-        hunterName: hunter.hunterName,
-        username: hunter.username
+          return {
+            id: hunter._id.toString(),
+            email: hunter.email,
+            name: hunter.hunterName,
+            username: hunter.username
+          };
+        } catch (error) {
+          throw new Error(error.message);
+        } finally {
+          client.close();
+        }
       }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  } finally {
-    client.close();
+    })
+  ],
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.id;
+      session.user.username = token.username;
+      return session;
+    }
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login'
   }
-}
+});
