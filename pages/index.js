@@ -4,41 +4,61 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Head>
         <title>Solo Leveling Arise | Become the Ultimate Hunter</title>
         <meta name="description" content="A powerful Solo Leveling inspired hunter game" />
       </Head>
 
       <main className="container mx-auto px-4 py-16">
-        <div className="flex flex-col items-center justify-center">
-          <Image 
-            src="/public/images/characters/jinwoo/normal.png" 
-            alt="Sung Jinwoo" 
-            width={300} 
-            height={400}
-            className="mb-8 animate-pulse"
-          />
+        <div className="flex flex-col items-center justify-center min-h-[80vh]">
+          {/* Character Image - Make sure path is correct */}
+          <div className="relative w-64 h-80 mb-10">
+            <Image 
+              src="/images/characters/jinwoo/normal.png"  // Removed /public
+              alt="Sung Jinwoo" 
+              fill
+              style={{ objectFit: 'contain' }}
+              className="animate-[pulse_3s_infinite]"
+              priority
+            />
+          </div>
           
-          <h1 className="text-5xl font-bold mb-6 text-yellow-400 font-solo">
+          {/* Title with custom font (add font to your CSS) */}
+          <h1 className="text-6xl font-bold mb-6 text-yellow-500 font-mono tracking-wider">
             SOLO LEVELING ARISE
           </h1>
           
-          <p className="text-xl mb-12 text-center max-w-2xl">
+          {/* Subtitle */}
+          <p className="text-xl mb-16 text-center max-w-2xl text-gray-300">
             Enter the world of hunters and monsters. Will you survive the dungeons or perish like the weak?
           </p>
           
-          <div className="flex gap-6">
-            <Link href="/register" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105">
-              Register as Hunter
+          {/* Buttons with proper spacing */}
+          <div className="flex gap-10">
+            <Link 
+              href="/register" 
+              className="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-all duration-300 hover:scale-110 shadow-lg shadow-red-900/50"
+            >
+              REGISTER
             </Link>
-            <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105">
-              Hunter Login
+            <Link 
+              href="/login" 
+              className="bg-blue-700 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-all duration-300 hover:scale-110 shadow-lg shadow-blue-900/50"
+            >
+              LOGIN
             </Link>
           </div>
         </div>
       </main>
+
+      {/* Add this to your global CSS */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+        .font-mono {
+          font-family: 'Orbitron', monospace;
+        }
+      `}</style>
     </div>
   );
 }
-
