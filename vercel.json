@@ -72,8 +72,8 @@
     }
   ],
   "env": {
-    "MONGODB_URI": "@mongodb+srv://hasnainkk:hasnainkk@cluster0.mmvls.mongodb.net/?retryWrites=true&w=majority",
-    "NEXTAUTH_SECRET": "@zF7aP9kL2qR5tY8wX3vU6sB1mN4cJ9hG0",
+    "MONGODB_URI": "@solo-leveling-mongodb-uri",
+    "NEXTAUTH_SECRET": "@solo-leveling-nextauth-secret",
     "NEXTAUTH_URL": "https://solo-leveling-07.vercel.app"
   },
   "regions": ["bom1"],
