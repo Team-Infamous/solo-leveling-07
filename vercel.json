@@ -2,20 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "Package.json",
+      "src": "package.json",
       "use": "@vercel/nextjs"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-
-  "regions": ["bom1"]
+  ]
 }
