@@ -21,7 +21,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index"  // Forces root to use pages/index.js
+      "dest": "/index" 
     }
   ]
 }
