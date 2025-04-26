@@ -2,24 +2,27 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await signIn('credentials', {
       redirect: false,
       email,
-      password
+      password,
+      callbackUrl: `${window.location.origin}/dashboard`
     });
 
     if (result?.error) {
-      setError('Invalid hunter credentials');
+      setError(result.error);
     } else {
-      window.location.href = '/dashboard';
+      router.push(result.url || '/dashboard');
     }
   };
 
@@ -40,7 +43,7 @@ export default function Login() {
         <div className="p-8">
           {error && (
             <div className="mb-4 p-3 bg-red-900 text-white rounded-lg text-center">
-              {error}
+              {error.includes('credentials') ? 'Invalid hunter credentials' : error}
             </div>
           )}
 
@@ -90,3 +93,4 @@ export default function Login() {
   );
 }
                   
+            
