@@ -2,34 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/nextjs",
-      "config": {
-        "distDir": ".next"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1",
-      "methods": ["GET"]
+      "src": "Package.json",
+      "use": "@vercel/nextjs"
     }
   ],
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/"
     }
   ],
   "redirects": [
@@ -40,6 +24,23 @@
     }
   ],
   "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Authorization"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
@@ -54,30 +55,14 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    },
-    {
-      "source": "/_next/static/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
   ],
-  "env": {
-    "MONGODB_URI": "@solo-leveling-mongodb-uri",
-    "NEXTAUTH_SECRET": "@solo-leveling-nextauth-secret",
-    "NEXTAUTH_URL": "https://solo-leveling-07.vercel.app"
-  },
   "regions": ["bom1"],
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false
+  "env": {
+    "MONGODB_URI": "@solo-mongodb-uri",
+    "NEXTAUTH_SECRET": "@solo-nextauth-secret",
+    "NEXTAUTH_URL": "https://solo-leveling-arise.vercel.app"
+  }
 }
