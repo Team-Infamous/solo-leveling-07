@@ -3,25 +3,8 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/nextjs"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/public/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index" 
+      "use": "@vercel/nextjs",
+      "config": {}
     }
   ]
 }
