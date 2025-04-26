@@ -13,7 +13,7 @@ export default function Home() {
       <main className="container mx-auto px-4 py-16">
         <div className="flex flex-col items-center justify-center">
           <Image 
-            src="/images/jinwoo.png" 
+            src="/public/images/characters/jinwoo/normal.png" 
             alt="Sung Jinwoo" 
             width={300} 
             height={400}
