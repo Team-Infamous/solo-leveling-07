@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import AuthForm from '../components/AuthForm';
 
 export default function Register() {
@@ -18,35 +19,46 @@ export default function Register() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        router.push('/dashboard');
-      } else {
-        setError(data.message || 'Registration failed');
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
+
+      router.push('/dashboard');
     } catch (err) {
-      setError('An error occurred during registration');
+      setError(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-6 text-center text-yellow-400 font-solo">Hunter Registration</h2>
-        
-        {error && (
-          <div className="mb-4 p-3 bg-red-600 text-white rounded">
-            {error}
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Head>
+        <title>Register - Solo Leveling: Arise</title>
+      </Head>
+      
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-md mx-auto bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <div className="bg-red-600 py-4 px-6">
+            <h1 className="text-2xl font-bold">Hunter Registration</h1>
+            <p className="text-sm">Join the Hunter Association</p>
           </div>
-        )}
-        
-        <AuthForm 
-          onSubmit={handleRegister} 
-          isRegister={true}
-        />
-        
-        <p className="mt-4 text-center">
-          Already a hunter? <a href="/login" className="text-blue-400 hover:underline">Login here</a>
-        </p>
+          
+          <div className="p-6">
+            {error && (
+              <div className="mb-4 p-3 bg-red-900 text-red-200 rounded">
+                {error}
+              </div>
+            )}
+            
+            <AuthForm 
+              onSubmit={handleRegister}
+              isRegister={true}
+            />
+            
+            <div className="mt-4 text-center">
+              <p className="text-gray-400">Already registered? <a href="/login" className="text-blue-400 hover:underline">Login here</a></p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
