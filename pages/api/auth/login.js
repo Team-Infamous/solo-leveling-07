@@ -1,6 +1,7 @@
-// pages/api/auth/login.js
-import { connectToDatabase } from '../../../lib/db';
-import { verifyPassword } from '../../../lib/auth';
+import { compare } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import { connectToDatabase } from '../../../../lib/mongodb';
+import { setCookie } from 'cookies-next';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,51 +9,67 @@ export default async function handler(req, res) {
   }
 
   const { email, password } = req.body;
-  const { client, db } = await connectToDatabase();
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
 
   try {
+    const { db } = await connectToDatabase();
+
+    // Find hunter by email
     const hunter = await db.collection('hunters').findOne({ email });
 
     if (!hunter) {
-      return res.status(404).json({ message: 'Hunter not found' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Special owner verification
-    if (email === process.env.OWNER_EMAIL) {
-      const isValid = await verifyPassword(password, hunter.password);
-      if (!isValid) {
-        return res.status(403).json({ message: 'Invalid owner credentials' });
-      }
-
-      return res.status(200).json({
-        isOwner: true,
-        isAdmin: true,
-        hunter: {
-          email: hunter.email,
-          hunterName: hunter.hunterName,
-          shadowArmy: hunter.shadowArmy || []
-        }
+    // Check if hunter is banned
+    if (hunter.isBanned) {
+      return res.status(403).json({ 
+        message: hunter.banType === 'PERMANENT' 
+          ? 'This account has been permanently banned' 
+          : 'This account is currently banned'
       });
     }
 
-    // Normal hunter login
-    const isValid = await verifyPassword(password, hunter.password);
-    if (!isValid) {
-      return res.status(403).json({ message: 'Invalid credentials' });
+    // Compare passwords
+    const passwordMatch = await compare(password, hunter.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Create JWT token
+    const token = sign(
+      { 
+        email: hunter.email, 
+        hunterId: hunter.hunterId,
+        isAdmin: hunter.isAdmin 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Set HTTP-only cookie
+    setCookie('token', token, {
+      req,
+      res,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+
+    // Don't send password back
+    delete hunter.password;
+
     res.status(200).json({
-      isOwner: false,
-      hunter: {
-        email: hunter.email,
-        hunterName: hunter.hunterName,
-        rank: hunter.rank
-      }
+      message: 'Login successful',
+      hunter
     });
   } catch (error) {
-    console.error('[LOGIN ERROR]', error);
-    res.status(500).json({ message: 'Server error' });
-  } finally {
-    client.close();
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
