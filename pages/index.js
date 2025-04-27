@@ -1,64 +1,60 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import styles from '../styles/Home.module.css';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className={styles.container}>
       <Head>
-        <title>Solo Leveling Arise | Become the Ultimate Hunter</title>
-        <meta name="description" content="A powerful Solo Leveling inspired hunter game" />
+        <title>Solo Leveling: Arise - Become the Ultimate Hunter</title>
+        <meta name="description" content="Enter the world of Solo Leveling and rise from the weakest to the strongest hunter" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto px-4 py-16">
-        <div className="flex flex-col items-center justify-center min-h-[80vh]">
-          {/* Character Image - Make sure path is correct */}
-          <div className="relative w-64 h-80 mb-10">
-            <Image 
-              src="/images/characters/jinwoo/normal.png"  // Removed /public
-              alt="Sung Jinwoo" 
-              fill
-              style={{ objectFit: 'contain' }}
-              className="animate-[pulse_3s_infinite]"
-              priority
-            />
+      <main className={styles.main}>
+        <div className={styles.hero}>
+          <Image 
+            src="/images/characters/jinwoo/normal.png" 
+            alt="Sung Jinwoo" 
+            width={400} 
+            height={600}
+            className={styles.heroImage}
+          />
+          <div className={styles.heroText}>
+            <h1 className={styles.title}>
+              SOLO <span className={styles.highlight}>LEVELING</span> ARISE
+            </h1>
+            <p className={styles.description}>
+              From the weakest E-Rank hunter to the Shadow Monarch. Your journey begins now.
+            </p>
+            <div className={styles.ctaButtons}>
+              <Link href="/register" className={styles.ctaPrimary}>
+                Register as Hunter
+              </Link>
+              <Link href="/login" className={styles.ctaSecondary}>
+                Hunter Login
+              </Link>
+            </div>
           </div>
-          
-          {/* Title with custom font (add font to your CSS) */}
-          <h1 className="text-6xl font-bold mb-6 text-yellow-500 font-mono tracking-wider">
-            SOLO LEVELING ARISE
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-xl mb-16 text-center max-w-2xl text-gray-300">
-            Enter the world of hunters and monsters. Will you survive the dungeons or perish like the weak?
-          </p>
-          
-          {/* Buttons with proper spacing */}
-          <div className="flex gap-10">
-            <Link 
-              href="/register" 
-              className="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-all duration-300 hover:scale-110 shadow-lg shadow-red-900/50"
-            >
-              REGISTER
-            </Link>
-            <Link 
-              href="/login" 
-              className="bg-blue-700 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-all duration-300 hover:scale-110 shadow-lg shadow-blue-900/50"
-            >
-              LOGIN
-            </Link>
+        </div>
+
+        <div className={styles.features}>
+          <div className={styles.featureCard}>
+            <h3>Dungeon Raids</h3>
+            <p>Enter deadly dungeons and battle terrifying monsters</p>
+          </div>
+          <div className={styles.featureCard}>
+            <h3>PvP Battles</h3>
+            <p>Challenge other hunters to prove your strength</p>
+          </div>
+          <div className={styles.featureCard}>
+            <h3>Shadow Army</h3>
+            <p>Command your own army of shadows (Admin Only)</p>
           </div>
         </div>
       </main>
-
-      {/* Add this to your global CSS */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
-        .font-mono {
-          font-family: 'Orbitron', monospace;
-        }
-      `}</style>
     </div>
   );
-}
+}            
+          
