@@ -10,31 +10,31 @@ export default async function handler(req, res) {
 
   // Validate input
   if (!email || !password || !hunterName || !username || !hunterClass) {
-    return res.status(400).json({ message: 'Missing required fields' });
+    return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
     const { db } = await connectToDatabase();
 
-    // Check if email or username already exists
+    // Check for existing user
     const existingUser = await db.collection('hunters').findOne({
       $or: [{ email }, { username }]
     });
 
     if (existingUser) {
-      if (existingUser.email === email) {
-        return res.status(400).json({ message: 'Email already registered' });
-      } else {
-        return res.status(400).json({ message: 'Username already taken' });
-      }
+      return res.status(409).json({ 
+        message: existingUser.email === email 
+          ? 'Email already registered' 
+          : 'Username already taken'
+      });
     }
 
     // Hash password
     const hashedPassword = await hash(password, 12);
-
-    // Generate hunter ID (6-digit number)
-    const hunterId = Math.floor(100000 + Math.random() * 900000);
-
+    
+    // Special admin setup
+    const isAdmin = email.toLowerCase() === 'lord_izana@yahoo.com';
+    
     // Create new hunter
     const newHunter = {
       email,
@@ -42,22 +42,23 @@ export default async function handler(req, res) {
       hunterName,
       username,
       class: hunterClass,
-      hunterId,
-      rank: 'E',
-      level: 1,
+      hunterId: Math.floor(100000 + Math.random() * 900000),
+      rank: isAdmin ? 'S' : 'E',
+      level: isAdmin ? 100 : 1,
       currentEXP: 0,
-      requiredEXP: 100,
+      requiredEXP: isAdmin ? 0 : 100,
       stats: {
-        strength: 10,
-        agility: 10,
-        intelligence: 10,
-        vitality: 10
+        strength: isAdmin ? 999 : 10,
+        agility: isAdmin ? 999 : 10,
+        intelligence: isAdmin ? 999 : 10,
+        vitality: isAdmin ? 999 : 10
       },
-      maxHP: 100,
-      currentHP: 100,
-      maxMP: 50,
-      currentMP: 50,
-      isAdmin: email === 'lord_izana@yahoo.com',
+      maxHP: isAdmin ? 9999 : 100,
+      currentHP: isAdmin ? 9999 : 100,
+      maxMP: isAdmin ? 5000 : 50,
+      currentMP: isAdmin ? 5000 : 50,
+      isAdmin,
+      shadowArmy: isAdmin ? ['Igris', 'Tusk', 'Iron', 'Kamish'] : [],
       isBanned: false,
       banType: null,
       createdAt: new Date(),
@@ -75,6 +76,9 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      message: 'Internal server error',
+      error: error.message 
+    });
   }
 }
