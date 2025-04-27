@@ -1,6 +1,6 @@
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { connectToDatabase } from '../../../../lib/mongodb';
+import { connectToDatabase } from '../../../lib/mongodb';
 import { setCookie } from 'cookies-next';
 
 export default async function handler(req, res) {
