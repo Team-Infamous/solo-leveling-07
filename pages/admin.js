@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import AdminPanel from '../../components/AdminPanel';
+import AdminPanel from '../components/AdminPanel';
 
 export default function AdminPage() {
   const [hunters, setHunters] = useState([]);
