@@ -1,8 +1,6 @@
-// components/AuthForm.js
 import { useState } from 'react';
-import Link from 'next/link';
 
-export default function AuthForm({ isRegister = false }) {
+const AuthForm = ({ onSubmit, isRegister }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,99 +19,105 @@ export default function AuthForm({ isRegister = false }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    onSubmit(formData);
   };
 
   return (
-    <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h2 className="text-3xl font-bold mb-6 text-center text-yellow-400">
-        {isRegister ? 'Hunter Registration' : 'Hunter Login'}
-      </h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {isRegister && (
-          <>
-            <div>
-              <label className="block text-gray-400 mb-2">Hunter Name</label>
-              <input
-                type="text"
-                name="hunterName"
-                value={formData.hunterName}
-                onChange={handleChange}
-                className="w-full p-3 bg-gray-700 rounded text-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 mb-2">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full p-3 bg-gray-700 rounded text-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 mb-2">Hunter Class</label>
-              <select
-                name="hunterClass"
-                value={formData.hunterClass}
-                onChange={handleChange}
-                className="w-full p-3 bg-gray-700 rounded text-white"
-              >
-                <option value="Warrior">Warrior</option>
-                <option value="Mage">Mage</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Tank">Tank</option>
-              </select>
-            </div>
-          </>
-        )}
+    <form onSubmit={handleSubmit}>
+      <div className="mb-4">
+        <label className="block text-gray-400 text-sm mb-2" htmlFor="email">
+          Hunter Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          className="w-full px-3 py-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
 
-        <div>
-          <label className="block text-gray-400 mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-700 rounded text-white"
-            required
-          />
-        </div>
+      <div className="mb-4">
+        <label className="block text-gray-400 text-sm mb-2" htmlFor="password">
+          Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          className="w-full px-3 py-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+          minLength="6"
+        />
+      </div>
 
-        <div>
-          <label className="block text-gray-400 mb-2">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-3 bg-gray-700 rounded text-white"
-            required
-            minLength={6}
-          />
-        </div>
+      {isRegister && (
+        <>
+          <div className="mb-4">
+            <label className="block text-gray-400 text-sm mb-2" htmlFor="hunterName">
+              Hunter Name
+            </label>
+            <input
+              type="text"
+              id="hunterName"
+              name="hunterName"
+              value={formData.hunterName}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded transition-colors"
-        >
-          {isRegister ? 'Register' : 'Login'}
-        </button>
-      </form>
+          <div className="mb-4">
+            <label className="block text-gray-400 text-sm mb-2" htmlFor="username">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-      <p className="mt-4 text-center text-gray-400">
-        {isRegister ? (
-          <>Already a hunter? <Link href="/login" className="text-blue-400 hover:underline">Login here</Link></>
-        ) : (
-          <>New hunter? <Link href="/register" className="text-blue-400 hover:underline">Register here</Link></>
-        )}
-      </p>
-    </div>
+          <div className="mb-4">
+            <label className="block text-gray-400 text-sm mb-2" htmlFor="hunterClass">
+              Hunter Class
+            </label>
+            <select
+              id="hunterClass"
+              name="hunterClass"
+              value={formData.hunterClass}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="Warrior">Warrior</option>
+              <option value="Mage">Mage</option>
+              <option value="Assassin">Assassin</option>
+              <option value="Tanker">Tanker</option>
+              <option value="Healer">Healer</option>
+              <option value="Ranger">Ranger</option>
+            </select>
+          </div>
+        </>
+      )}
+
+      <button
+        type="submit"
+        className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 rounded font-bold"
+      >
+        {isRegister ? 'Register as Hunter' : 'Login'}
+      </button>
+    </form>
   );
-}
-        
+};
+
+export default AuthForm;
