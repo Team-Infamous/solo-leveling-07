@@ -1,4 +1,13 @@
 {
+  "name": "solo-leveling-arise",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookies-next": "^2.1.0",
@@ -6,7 +15,7 @@
     "mongodb": "^5.7.0",
     "next": "13.4.12",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
     "next-auth": "^4.24.6"
   }
 }
