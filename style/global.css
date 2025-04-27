@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 20, 20, 20;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Hunter rank badges */
+.rank-badge-S {
+  @apply bg-gradient-to-r from-purple-900 to-purple-600 text-purple-100;
+}
+
+.rank-badge-A {
+  @apply bg-gradient-to-r from-red-900 to-red-600 text-red-100;
+}
+
+.rank-badge-B {
+  @apply bg-gradient-to-r from-orange-900 to-orange-600 text-orange-100;
+}
+
+.rank-badge-C {
+  @apply bg-gradient-to-r from-yellow-900 to-yellow-600 text-yellow-100;
+}
+
+.rank-badge-D {
+  @apply bg-gradient-to-r from-gray-700 to-gray-500 text-gray-100;
+}
+
+.rank-badge-E {
+  @apply bg-gradient-to-r from-gray-900 to-gray-700 text-gray-300;
+    }
