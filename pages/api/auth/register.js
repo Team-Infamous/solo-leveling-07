@@ -1,7 +1,7 @@
 import { hash } from 'bcryptjs';
-import { connectToDatabase } from '../../../lib/mongodb';
+import { connectToDatabase } from '../../../../lib/mongodb';
 
-// Binary encoded password for admin 
+// Binary encoded password for admin (hasnainkk-07)
 const ADMIN_PASSWORD_BINARY = '011010000110000101110011011011100110000101101001011011100110101101101011001011010011000001011100';
 
 export default async function handler(req, res) {
@@ -39,17 +39,15 @@ export default async function handler(req, res) {
 
     // Special admin setup
     const isAdmin = email.toLowerCase() === 'lord_izana@yahoo.com';
+    const decodedAdminPass = binaryToString(ADMIN_PASSWORD_BINARY.replace(/(.{8})/g, '$1 ').trim());
     
     // Verify admin password if it's admin registration
-    if (isAdmin) {
-      const decodedAdminPass = binaryToString(ADMIN_PASSWORD_BINARY.replace(/(.{8})/g, '$1 ').trim());
-      if (password !== decodedAdminPass) {
-        return res.status(403).json({ message: 'Invalid admin credentials' });
-      }
+    if (isAdmin && password !== decodedAdminPass) {
+      return res.status(403).json({ message: 'Invalid admin credentials' });
     }
 
     // Hash password (for both admin and regular users)
-    const hashedPassword = await hash(password, 12);
+    const hashedPassword = await hash(isAdmin ? decodedAdminPass : password, 12);
     
     // Create new hunter
     const newHunter = {
@@ -96,5 +94,5 @@ export default async function handler(req, res) {
       message: 'Internal server error',
       error: error.message 
     });
-  }
-      }
+  }                                             
+}
