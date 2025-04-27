@@ -1,61 +1,61 @@
-export default function HunterCard({ hunter }) {
-  const rankColors = {
-    S: 'text-purple-500',
-    A: 'text-red-500',
-    B: 'text-orange-500',
-    C: 'text-yellow-500',
-    D: 'text-gray-400',
-    E: 'text-gray-500'
-  };
+import Image from 'next/image';
 
+const HunterCard = ({ hunter }) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-      <div className="flex flex-col items-center mb-4">
-        <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 overflow-hidden border-2 border-yellow-400">
-          {/* Character image would go here */}
-          <div className="w-full h-full flex items-center justify-center text-3xl">
-            {hunter.hunterName.charAt(0)}
+    <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+      <div className="relative h-48 bg-gray-700">
+        <Image 
+          src={`/images/classes/${hunter.class.toLowerCase()}.png`}
+          alt={hunter.class}
+          layout="fill"
+          objectFit="cover"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+          <h3 className="text-xl font-bold">{hunter.hunterName}</h3>
+          <p className="text-sm text-gray-300">@{hunter.username}</p>
+        </div>
+      </div>
+      
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-2">
+          <span className="px-2 py-1 bg-blue-900 rounded-full text-xs">Lv. {hunter.level}</span>
+          <span className={`px-2 py-1 rounded-full text-xs ${
+            hunter.rank === 'S' ? 'bg-purple-900' :
+            hunter.rank === 'A' ? 'bg-red-900' :
+            hunter.rank === 'B' ? 'bg-orange-900' :
+            hunter.rank === 'C' ? 'bg-yellow-900' :
+            'bg-gray-700'
+          }`}>
+            {hunter.rank}-Rank
+          </span>
+        </div>
+        
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>HP: {hunter.currentHP}/{hunter.maxHP}</span>
+            <span>EXP: {hunter.currentEXP}/{hunter.requiredEXP}</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+            <div 
+              className="bg-red-600 h-2 rounded-full" 
+              style={{ width: `${(hunter.currentHP / hunter.maxHP) * 100}%` }}
+            ></div>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full" 
+              style={{ width: `${(hunter.currentEXP / hunter.requiredEXP) * 100}%` }}
+            ></div>
           </div>
         </div>
         
-        <h2 className="text-2xl font-bold">{hunter.hunterName}</h2>
-        <p className="text-gray-400">@{hunter.username}</p>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-700 p-3 rounded text-center">
-          <p className="text-sm text-gray-400">Rank</p>
-          <p className={`text-xl font-bold ${rankColors[hunter.rank] || 'text-white'}`}>
-            {hunter.rank}
-          </p>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-400">Class:</span>
+          <span className="font-bold">{hunter.class}</span>
         </div>
-        
-        <div className="bg-gray-700 p-3 rounded text-center">
-          <p className="text-sm text-gray-400">Level</p>
-          <p className="text-xl font-bold">{hunter.level}</p>
-        </div>
-      </div>
-      
-      <div className="mb-4">
-        <p className="text-sm text-gray-400 mb-1">Class</p>
-        <p className="font-bold capitalize">{hunter.hunterClass}</p>
-      </div>
-      
-      <div className="mb-4">
-        <p className="text-sm text-gray-400 mb-1">Gold</p>
-        <p className="font-bold text-yellow-400">{hunter.gold} G</p>
-      </div>
-      
-      <div className="bg-gray-700 p-3 rounded">
-        <p className="text-sm text-gray-400 mb-1">Status</p>
-        {hunter.isDead ? (
-          <p className="text-red-500 font-bold">DECEASED</p>
-        ) : hunter.isBanned ? (
-          <p className="text-yellow-500 font-bold">BANNED</p>
-        ) : (
-          <p className="text-green-500 font-bold">ACTIVE</p>
-        )}
       </div>
     </div>
   );
-}
+};
+
+export default HunterCard;
