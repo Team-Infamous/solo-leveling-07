@@ -1,96 +1,65 @@
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import Link from 'next/link';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+import AuthForm from '../components/AuthForm';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-      callbackUrl: `${window.location.origin}/dashboard`
-    });
+  const handleLogin = async (formData) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    if (result?.error) {
-      setError(result.error);
-    } else {
-      router.push(result.url || '/dashboard');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 text-white">
       <Head>
-        <title>Solo Leveling Arise | Hunter Login</title>
+        <title>Login - Solo Leveling: Arise</title>
       </Head>
-
-      <div className="w-full max-w-md bg-gray-900 border-2 border-yellow-600 rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-red-900 to-black p-6 text-center">
-          <h2 className="text-3xl font-bold text-yellow-400 font-orbitron tracking-wider">
-            HUNTER LOGIN
-          </h2>
-          <p className="text-gray-300 mt-2">Access the Hunter System</p>
-        </div>
-
-        <div className="p-8">
-          {error && (
-            <div className="mb-4 p-3 bg-red-900 text-white rounded-lg text-center">
-              {error.includes('credentials') ? 'Invalid hunter credentials' : error}
+      
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-md mx-auto bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <div className="bg-blue-600 py-4 px-6">
+            <h1 className="text-2xl font-bold">Hunter Login</h1>
+            <p className="text-sm">Access the Hunter System</p>
+          </div>
+          
+          <div className="p-6">
+            {error && (
+              <div className="mb-4 p-3 bg-red-900 text-red-200 rounded">
+                {error}
+              </div>
+            )}
+            
+            <AuthForm 
+              onSubmit={handleLogin}
+              isRegister={false}
+            />
+            
+            <div className="mt-4 text-center">
+              <p className="text-gray-400">Not a hunter yet? <a href="/register" className="text-blue-400 hover:underline">Register here</a></p>
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-yellow-500 mb-2">Hunter ID</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-500 focus:outline-none"
-                placeholder="hunter@association.org"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-yellow-500 mb-2">Access Code</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-yellow-500 focus:outline-none"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-red-700 to-red-800 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-red-900/50"
-            >
-              SYSTEM ACCESS
-            </button>
-          </form>
-
-          <div className="mt-6 text-center text-gray-400">
-            Not registered?{' '}
-            <Link href="/register" className="text-yellow-500 hover:underline font-semibold">
-              Activate Hunter License
-            </Link>
           </div>
         </div>
       </div>
     </div>
-  );
+  );                
 }
-                  
-            
