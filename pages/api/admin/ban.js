@@ -1,58 +1,56 @@
-import { connectToDatabase } from '../../../lib/db';
+import { getSession } from '../../../lib/auth';
+import { connectToDatabase } from '../../../lib/mongodb';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Verify admin
-  const authResponse = await fetch('http://localhost:3000/api/admin/verify', {
-    headers: {
-      'Cookie': req.headers.cookie,
-    },
-  });
+  const session = await getSession(req, res);
 
-  const authData = await authResponse.json();
-
-  if (!authResponse.ok || authData.email !== 'lord_izana@yahoo.com') {
+  if (!session || !session.isAdmin) {
     return res.status(403).json({ message: 'Unauthorized' });
   }
 
-  const { hunterId, reason, permanent } = req.body;
+  const { hunterId, permanent } = req.body;
 
-  if (!hunterId || !reason) {
-    return res.status(422).json({ message: 'Missing hunter ID or reason' });
+  if (!hunterId) {
+    return res.status(400).json({ message: 'Hunter ID is required' });
   }
 
-  const client = await connectToDatabase();
-  const db = client.db();
-
   try {
-    const updateData = {
-      isBanned: true,
-      banReason: reason,
-      updatedAt: new Date(),
-    };
+    const { db } = await connectToDatabase();
 
-    if (permanent) {
-      updateData.isDead = true;
-    }
+    // Check if hunter exists
+    const hunter = await db.collection('hunters').findOne({ hunterId: parseInt(hunterId) });
 
-    const result = await db.collection('hunters').updateOne(
-      { _id: hunterId },
-      { $set: updateData }
-    );
-
-    if (result.modifiedCount === 0) {
-      client.close();
+    if (!hunter) {
       return res.status(404).json({ message: 'Hunter not found' });
     }
 
-    client.close();
-    return res.status(200).json({ message: 'Hunter banned successfully' });
+    // Prevent banning admin
+    if (hunter.isAdmin) {
+      return res.status(403).json({ message: 'Cannot ban an admin' });
+    }
+
+    // Update hunter status
+    await db.collection('hunters').updateOne(
+      { hunterId: parseInt(hunterId) },
+      { 
+        $set: { 
+          isBanned: true,
+          banType: permanent ? 'PERMANENT' : 'TEMPORARY',
+          updatedAt: new Date()
+        } 
+      }
+    );
+
+    res.status(200).json({ 
+      message: permanent ? 'Hunter permanently banned' : 'Hunter banned',
+      hunterId 
+    });
   } catch (error) {
-    client.close();
-    console.error('Error banning hunter:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Ban error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-        }
+}
