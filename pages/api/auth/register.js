@@ -1,5 +1,5 @@
 import { hash } from 'bcryptjs';
-import { connectToDatabase } from '../../../../lib/mongodb';
+import { connectToDatabase } from '../../../lib/mongodb';
 
 // Binary encoded password for admin (hasnainkk-07)
 const ADMIN_PASSWORD_BINARY = '011010000110000101110011011011100110000101101001011011100110101101101011001011010011000001011100';
